@@ -10,7 +10,6 @@ lint:  ## Run flake8, mypy, other linters and verify formatting
 	make flake8
 	make mypy
 	make verify_format
-	poetry run doc8 -q docs
 	poetry run yamllint -s .
 
 .PHONY: flake8

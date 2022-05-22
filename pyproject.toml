@@ -7,6 +7,9 @@ name = "django-better-json-widget"
 description = "Better JSON Widget for Django Admin"
 version = "0.1.0"
 license = "MIT"
+packages = [
+    { include = "better_json_widget" },
+]
 
 authors = [
   "yakimka"
@@ -23,22 +26,19 @@ classifiers = [
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Topic :: Software Development :: Libraries :: Python Modules",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Programming Language :: Python :: 3",
 ]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 
-# Docs, optional, use `poetry install -E docs` to install them:
-sphinx = { version = "^4.5",  optional = true }
-sphinx-autodoc-typehints = { version = "^1.18", optional = true }
-m2r2 = { version = "^0.3",  optional = true }
-tomlkit = { version = "^0.10", optional = true }
-
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 darglint = "^1.8.1"
 dlint = "^0.12.0"
-doc8 = "^0.11"
 flake8 = "^4.0.1"
 flake8-aaa = "^0.12.2"
 flake8-bandit = "^3.0.0"
@@ -61,9 +61,8 @@ flake8-simplify = "^0.19.2"
 flake8-string-format = "^0.3.0"
 flake8-type-checking = "^1.5.0"
 flake8-typing-imports = "^1.12.0"
-hypothesis = "^6.46.7"
 isort = "^5.10.1"
-mypy = "^0.950"
+mypy = "^0.942"
 pep8-naming = "^0.12.1"
 pre-commit = "^2.19.0"
 pytest = "^7.1"
@@ -72,9 +71,7 @@ pytest-randomly = "^3.12"
 safety = "^1.10"
 tomli = "^2.0.1"
 yamllint = "^1.26.3"
-
-[tool.poetry.extras]
-docs = ["sphinx", "sphinx-autodoc-typehints", "m2r2", "tomlkit"]
+django-stubs = "^1.10.1"
 
 [tool.isort]
 # isort configuration:
@@ -104,11 +101,17 @@ addopts = [
   "--doctest-modules",
   "--cov",
   "--cov-report=term:skip-covered",
+  "--cov-report=term-missing",
   "--cov-report=html",
   "--cov-report=xml",
   "--cov-branch",
-#  "--cov-fail-under=100",
+  "--cov-fail-under=100",
 ]
+
+[tool.coverage.report]
+  exclude_lines = [
+    "if TYPE_CHECKING:",
+  ]
 
 [tool.mypy]
 # mypy configurations: https://mypy.readthedocs.io/en/latest/config_file.html
