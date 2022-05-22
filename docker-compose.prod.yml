@@ -1,0 +1,42 @@
+---
+
+# This compose-file is production only. So, it should not be called directly.
+#
+# Instead, it should be a part of your deployment strategy.
+# This setup is supposed to be used with `docker-swarm`.
+# See `./docs/pages/template/production.rst` docs.
+
+version: "3.8"
+services:
+  web:
+    <<: &web
+      # Image for production:
+      image: "yakim/django-better-json-widget:latest"
+      build:
+        target: production
+
+      restart: unless-stopped
+      volumes:
+        - django-media:/var/www/django/media  # since in dev it is app's folder
+        - django-locale:/code/locale  # since in dev it is app's folder
+
+    networks:
+      - proxynet
+    expose:
+      - 8000
+
+# This task is an example of how to extend existing ones:
+#   some_worker:
+#     <<: *web
+#     command: python manage.py worker_process
+#     deploy:
+#       replicas: 2
+
+networks:
+  # Network for your proxy server and application to connect them,
+  # do not use it for anything else!
+  proxynet:
+
+volumes:
+  django-media:
+  django-locale:

@@ -1,0 +1,135 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "django-better-json-widget"
+description = "Better JSON Widget for Django Admin"
+version = "0.1.0"
+license = "MIT"
+
+authors = [
+  "yakimka"
+]
+
+readme = "README.md"
+
+repository = "https://github.com/yakimka/django-better-json-widget"
+
+keywords = []
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+# Docs, optional, use `poetry install -E docs` to install them:
+sphinx = { version = "^4.5",  optional = true }
+sphinx-autodoc-typehints = { version = "^1.18", optional = true }
+m2r2 = { version = "^0.3",  optional = true }
+tomlkit = { version = "^0.10", optional = true }
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+darglint = "^1.8.1"
+dlint = "^0.12.0"
+doc8 = "^0.11"
+flake8 = "^4.0.1"
+flake8-aaa = "^0.12.2"
+flake8-bandit = "^3.0.0"
+flake8-broken-line = "^0.4.0"
+flake8-bugbear = "^22.4.25"
+flake8-comprehensions = "^3.10.0"
+flake8-debugger = "^4.1.2"
+flake8-docstrings = "^1.6.0"
+flake8-eradicate = "^1.2.1"
+flake8-executable = "^2.1.1"
+flake8-fixme = "^1.1.1"
+flake8-implicit-str-concat = "^0.3.0"
+flake8-mock = "^0.3"
+flake8-pie = "^0.15.0"
+flake8-pylint = "^0.1.3"
+flake8-pytest-style = "^1.6"
+flake8-quotes = "^3.3.1"
+flake8-rst-docstrings = "^0.2.5"
+flake8-simplify = "^0.19.2"
+flake8-string-format = "^0.3.0"
+flake8-type-checking = "^1.5.0"
+flake8-typing-imports = "^1.12.0"
+hypothesis = "^6.46.7"
+isort = "^5.10.1"
+mypy = "^0.950"
+pep8-naming = "^0.12.1"
+pre-commit = "^2.19.0"
+pytest = "^7.1"
+pytest-cov = "^3.0"
+pytest-randomly = "^3.12"
+safety = "^1.10"
+tomli = "^2.0.1"
+yamllint = "^1.26.3"
+
+[tool.poetry.extras]
+docs = ["sphinx", "sphinx-autodoc-typehints", "m2r2", "tomlkit"]
+
+[tool.isort]
+# isort configuration:
+# https://github.com/timothycrosley/isort/wiki/isort-Settings
+profile = "black"
+include_trailing_comma = true
+use_parentheses = true
+# See https://github.com/timothycrosley/isort#multi-line-output-modes
+multi_line_output = 3
+line_length = 80
+
+[tool.black]
+line-length = 80
+
+[tool.pytest.ini_options]
+# Directories that are not visited by pytest collector:
+norecursedirs = ["*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"]
+
+# Strict `@xfail` by default:
+xfail_strict = true
+
+# Extra options:
+addopts = [
+  "--strict-markers",
+  "--strict-config",
+  "--tb=short",
+  "--doctest-modules",
+  "--cov",
+  "--cov-report=term:skip-covered",
+  "--cov-report=html",
+  "--cov-report=xml",
+  "--cov-branch",
+#  "--cov-fail-under=100",
+]
+
+[tool.mypy]
+# mypy configurations: https://mypy.readthedocs.io/en/latest/config_file.html
+allow_redefinition = false
+check_untyped_defs = true
+disallow_any_explicit = false
+disallow_any_generics = false
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+ignore_errors = false
+ignore_missing_imports = true
+implicit_reexport = false
+local_partial_types = true
+no_implicit_optional = true
+strict_equality = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[tool.pylint.messages_control]
+max-line-length = 80
