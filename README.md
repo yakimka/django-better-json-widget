@@ -21,7 +21,7 @@ Better JSON Widget for Django Admin
 ## Limitations
 
 - Supports only a small subset of the JSON Schema (integer, number, boolean, string types)
-- Does not support enum, list (yet) and object (not planned) types
+- Does not support enum, list types (yet) and nested objects (not planned)
 
 So, PR's are welcome!
 
