@@ -1,0 +1,254 @@
+{% load i18n static %}
+
+<script type="importmap">
+  {
+    "imports": {
+      "vue": "{{ vue_esm_url}}"
+    }
+  }
+</script>
+
+<div class="better-json" id="better-json-{{ field_name }}">
+    <div v-if="currentSchema.length">
+        <h2>[[ label ]]</h2>
+
+        <div v-if="help && help != ''" class="form-row">
+            <p class="help">[[ help ]]</p>
+        </div>
+
+        <div class="better-json-rows">
+            <div v-if="errors" class="form-row field-data">
+                <div>
+                    <ul class="errorlist" v-html="errors"></ul>
+                </div>
+            </div>
+
+            <div class="form-row field-data" v-for="item in currentSchema" v-if="!isRawEditOn">
+                <div v-if="item.type === 'string'">
+                    <label :class="{required: item.required}"
+                           :for="`id_custom_json_${item.name}`"
+                    >
+                        [[ item.title ]]:
+                    </label>
+                    <input type="text"
+                           :name="item.name"
+                           class="vTextField"
+                           :required="item.required ? true : null"
+                           :id="`id_custom_json_${item.name}`"
+                           v-model="bindValues[item.name]"
+                    >
+                </div>
+
+                <div v-if="item.type === 'integer' || item.type === 'number'">
+                    <label :for="`id_custom_json_${item.name}`"
+                           :class="{required: item.required}"
+                    >[[ item.title ]]:</label>
+                    <input type="number"
+                           :name="item.name"
+                           :required="item.required ? true : null"
+                           v-model="bindValues[item.name]"
+                           :id="`id_custom_json_${item.name}`"
+                    >
+                </div>
+
+                <div v-if="item.type === 'boolean'">
+                    <input type="checkbox"
+                           :name="item.name"
+                           :id="`id_custom_json_${item.name}`"
+                           v-model="bindValues[item.name]"
+                    >
+                    <label class="vCheckboxLabel"
+                           :for="`id_custom_json_${item.name}`"
+                    >
+                        [[ item.title ]]
+                    </label>
+                </div>
+
+                <div class="help" v-if="item.description">[[ item.description ]]</div>
+            </div>
+        </div>
+        <div class="form-row field-data better-json-textarea" v-show="isRawEditOn">
+            <div>
+                <label :for="id" class="required">{% trans "Raw JSON Editing" %}:</label>
+                <textarea class="vLargeTextField"
+                          cols="40"
+                          :id="id"
+                          :name="name"
+                          rows="10"
+                          v-model="rawValue"
+                ></textarea>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <a href="#"
+               class="better-json-toggle-textarea"
+               title="{% trans 'toggle textarea' %}"
+               style="float:right"
+               @click.stop.prevent="toggleRawEditing"
+            >
+                <img src="{% static 'admin/img/icon-changelink.svg' %}" alt="">
+                {% trans "Toggle Raw JSON Editing" %}
+            </a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { createApp } from "vue";
+
+    const $ = django.jQuery;
+
+    let fieldName = "{{ field_name }}";
+    let fieldId = `id_${fieldName}`;
+    let originalTextarea = $("#" + fieldId);
+    let originalValue = originalTextarea.val();
+    let originalContainer = originalTextarea.parents(".form-row").eq(0);
+    let errorHtml = originalContainer.find(".errorlist").html();
+
+    originalContainer.after($(".better-json").detach());
+
+    originalTextarea.remove();
+    originalContainer.hide();
+
+    $(function () {
+        let followField = "{{ follow_field }}";
+        let needFollow = followField !== "";
+        let followInput = needFollow ? document.getElementById(`id_${followField}`) : null;
+        createApp({
+            data() {
+                return {
+                    needFollow: needFollow,
+                    followInput: followInput,
+                    schemaMapping: {{ schema_mapping | safe }},
+                    followInputValue: needFollow ? followInput.value : "",
+                    rawValue: originalValue,
+                    isRawEditOn: Boolean(errorHtml),
+
+                    id: fieldId,
+                    name: fieldName,
+                    label: originalContainer.find("label").text(),
+
+                    help: originalContainer.find(".help").text(),
+                    errors: errorHtml,
+                    values: null,
+                }
+            },
+            methods: {
+                onChange(event) {
+                    let value = "";
+                    if (event.target.type === "checkbox") {
+                        value = event.target.checked;
+                    } else {
+                        value = event.target.value;
+                    }
+                    this.followInputValue = String(value);
+                },
+                parseSchemas() {
+                    // TODO add not existed fields from data
+                    let results = {};
+                    const fillerValues = {
+                        "string": "",
+                        "number": 0,
+                        "integer": 0,
+                        "boolean": false,
+                    }
+                    let JSONData = {};
+                    if (this.checkRawValueIsValidAndAlert(true)) {
+                        JSONData = JSON.parse(this.rawValue);
+                    }
+
+                    for (const [schemaName, schema] of Object.entries(this.schemaMapping)) {
+                        results[schemaName] = [];
+
+                        for (const [fieldName, field] of Object.entries(schema.properties)) {
+                            let defaultValue = field.default ?? fillerValues[field.type];
+                            if (fieldName in JSONData) {
+                                defaultValue = JSONData[fieldName];
+                            }
+                            results[schemaName].push({
+                                name: fieldName,
+                                title: field.title ?? fieldName,
+                                type: field.type,
+                                description: field.description ?? "",
+                                default: defaultValue,
+                                required: schema.required.includes(fieldName),
+                            });
+                        }
+                    }
+                    return results;
+                },
+                fromRawToWidget() {
+                    this.values = {};
+                    let schemas = this.parseSchemas();
+                    if (schemas === null) {
+                        return null;
+                    }
+                    for (const [schemaName, schema] of Object.entries(schemas)) {
+                        this.values[schemaName] = {};
+                        for (const field of schema) {
+                            this.values[schemaName][field.name] = field.default;
+                        }
+                    }
+                },
+                toggleRawEditing() {
+                    if (!this.checkRawValueIsValidAndAlert()) {
+                        return;
+                    }
+                    this.fromRawToWidget();
+                    this.isRawEditOn = !this.isRawEditOn;
+                },
+                checkRawValueIsValidAndAlert(quiet) {
+                    if (this.rawValue !== "" && this.rawValue !== "{}") {
+                        try {
+                            JSON.parse(this.rawValue);
+                        } catch (e) {
+                            if (!quiet) {
+                                alert("invalid JSON:\n" + e);
+                            }
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            },
+              watch: {
+                bindValues: {
+                    handler(value, oldValue) {
+                        this.rawValue = JSON.stringify(value, null, 4);
+                    },
+                    deep: true,
+                }
+            },
+            computed: {
+                currentSchema() {
+                    let schemas = this.parseSchemas();
+
+                    if (!(this.followInputValue in schemas)) {
+                        return [];
+                    }
+                    return schemas[this.followInputValue];
+                },
+                bindValues() {
+                    if (this.values == null) {
+                        this.fromRawToWidget();
+                    }
+                    return this.values[this.followInputValue];
+                }
+            },
+            mounted() {
+                this.fromRawToWidget();
+                if (this.needFollow) {
+                    this.followInput.addEventListener("input", this.onChange);
+                }
+            },
+            destroyed() {
+                this.followInput.removeEventListener("input", this.onChange);
+            },
+            compilerOptions: {
+                delimiters: ["[[", "]]"]
+            }
+        }).mount("#better-json-{{ field_name }}");
+    });
+
+</script>
