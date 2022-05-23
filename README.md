@@ -124,10 +124,15 @@ If for some reason you don't want to use bundled Vue.js, you can use `BETTER_JSO
 BETTER_JSON_WIDGET_VUE_ESM_URL = "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
 ```
 
+## TODO
+
+- Improve JSON Schema support
+- Show current field value in UI
+- UI tests
+
 ## License
 
 [MIT](https://github.com/yakimka/django-better-json-widget/blob/master/LICENSE)
-
 
 ## Credits
 
