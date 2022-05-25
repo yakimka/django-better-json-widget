@@ -71,7 +71,7 @@ pytest-randomly = "^3.12"
 safety = "^1.10"
 tomli = "^2.0.1"
 yamllint = "^1.26.3"
-django-stubs = "^1.10.1"
+django-stubs = "^1.11.0"
 
 [tool.isort]
 # isort configuration:
