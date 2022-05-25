@@ -1,5 +1,11 @@
 {% load i18n static %}
 
+<style>
+    [v-cloak] {
+      display: none;
+    }
+</style>
+
 <script type="importmap">
   {
     "imports": {
@@ -8,7 +14,7 @@
   }
 </script>
 
-<div class="better-json" id="better-json-{{ field_name }}">
+<div class="better-json" id="better-json-{{ field_name }}" v-cloak>
     <div v-if="currentSchema.length">
         <h2>[[ label ]]</h2>
 
@@ -158,8 +164,16 @@
                         JSONData = JSON.parse(this.rawValue);
                     }
 
+                    if (!this.schemaMapping) {
+                        return results;
+                    }
+
                     for (const [schemaName, schema] of Object.entries(this.schemaMapping)) {
                         results[schemaName] = [];
+
+                        if (!schema.properties) {
+                            continue;
+                        }
 
                         for (const [fieldName, field] of Object.entries(schema.properties)) {
                             let defaultValue = field.default ?? fillerValues[field.type];
