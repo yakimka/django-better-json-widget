@@ -102,6 +102,7 @@ jobs:
           if [[ "$TAG" != "$PROJECT_VERSION" ]]; then exit 1; fi
 
       - name: Build and publish (dry-run)
+        if: github.actor != 'dependabot[bot]'
         run: rm -rf dist && poetry publish --build --dry-run
 
       - name: Build and publish
