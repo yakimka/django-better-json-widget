@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from django.conf import settings
 from django.contrib.admin.widgets import AdminTextareaWidget
+from django.forms import Media
 from django.template.loader import get_template
 from django.templatetags.static import static
 
@@ -12,9 +13,7 @@ if TYPE_CHECKING:
     from django.forms.renderers import BaseRenderer
 
 
-DEFAULT_VUE_ESM_URL = static(
-    "better_json_widget/js/lib/vue.3.2.35.esm-browser.js"
-)
+DEFAULT_VUE_URL = static("better_json_widget/js/lib/vue.3.2.26.global.prod.js")
 
 
 class BetterJsonWidget(AdminTextareaWidget):
@@ -43,6 +42,13 @@ class BetterJsonWidget(AdminTextareaWidget):
         self._follow_field = follow_field
         self._schema_mapping = schema_mapping or {}
 
+    @property
+    def media(self):
+        vue = getattr(settings, "BETTER_JSON_WIDGET_VUE_URL", DEFAULT_VUE_URL)
+        if not vue:
+            return None
+        return Media(js=[vue])
+
     def render(
         self,
         name: str,
@@ -62,12 +68,8 @@ class BetterJsonWidget(AdminTextareaWidget):
         html = super().render(name, value, attrs, renderer)
         template = get_template("better_json_widget/better_json_widget.html")
 
-        vue_esm_url = getattr(
-            settings, "BETTER_JSON_WIDGET_VUE_ESM_URL", DEFAULT_VUE_ESM_URL
-        )
         html += template.render(
             {
-                "vue_esm_url": vue_esm_url,
                 "field_name": name,
                 "follow_field": follow_field,
                 "schema_mapping": json.dumps(schema_mapping or {"": schema}),

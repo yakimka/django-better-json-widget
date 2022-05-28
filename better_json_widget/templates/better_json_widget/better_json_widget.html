@@ -6,14 +6,6 @@
     }
 </style>
 
-<script type="importmap">
-  {
-    "imports": {
-      "vue": "{{ vue_esm_url}}"
-    }
-  }
-</script>
-
 <div class="better-json" id="better-json-{{ field_name }}" v-cloak>
     <div v-if="currentSchema.length">
         <h2>[[ label ]]</h2>
@@ -101,7 +93,7 @@
 </div>
 
 <script type="module">
-    import { createApp } from "vue";
+    const { createApp } = Vue;
 
     const $ = django.jQuery;
 
@@ -112,7 +104,7 @@
     let originalContainer = originalTextarea.parents(".form-row").eq(0);
     let errorHtml = originalContainer.find(".errorlist").html();
 
-    originalContainer.after($(".better-json").detach());
+    originalContainer.after($("#better-json-{{ field_name }}").detach());
 
     originalTextarea.remove();
     originalContainer.hide();
