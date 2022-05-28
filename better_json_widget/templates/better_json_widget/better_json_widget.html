@@ -7,7 +7,7 @@
 </style>
 
 <div class="better-json" id="better-json-{{ field_name }}" v-cloak>
-    <div v-if="currentSchema.length">
+    <div v-show="currentSchema.length">
         <h2>[[ label ]]</h2>
 
         <div v-if="help && help != ''" class="form-row">
@@ -76,6 +76,14 @@
                           v-model="rawValue"
                 ></textarea>
             </div>
+                <a href="#"
+                   class="better-json-restore-original"
+                   title="{% trans 'restore original' %}"
+                   @click.stop.prevent="rawValue = originalValue"
+                >
+                    <img src="{% static 'admin/img/icon-yes.svg' %}" alt="">
+                    {% trans "Restore original value" %}
+                </a>
         </div>
 
         <div class="form-row">
@@ -120,6 +128,7 @@
                     followInput: followInput,
                     schemaMapping: {{ schema_mapping | safe }},
                     followInputValue: needFollow ? followInput.value : "",
+                    originalValue: originalValue,
                     rawValue: originalValue,
                     isRawEditOn: Boolean(errorHtml),
 
@@ -221,7 +230,11 @@
               watch: {
                 bindValues: {
                     handler(value, oldValue) {
-                        this.rawValue = JSON.stringify(value, null, 4);
+                        if (this.currentSchema.length) {
+                            this.rawValue = JSON.stringify(value, null, 4);
+                        } else {
+                            this.rawValue = "{}";
+                        }
                     },
                     deep: true,
                 }
