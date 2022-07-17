@@ -22,7 +22,21 @@
             </div>
 
             <div class="form-row field-data" v-for="item in currentSchema" v-if="!isRawEditOn">
-                <div v-if="item.type === 'string'">
+                <div v-if="item.enum.length">
+                    <label :class="{required: item.required}"
+                           :for="`id_custom_json_${item.name}`"
+                    >
+                        [[ item.title ]]:
+                    </label>
+                    <select :name="item.name"
+                            :id="`id_custom_json_${item.name}`"
+                            v-model="bindValues[item.name]"
+                    >
+                        <option :value="opt" v-for="opt in item.enum">[[ opt ]]</option>
+                    </select>
+                </div>
+
+                <div v-else-if="item.type === 'string'">
                     <label :class="{required: item.required}"
                            :for="`id_custom_json_${item.name}`"
                     >
@@ -37,7 +51,7 @@
                     >
                 </div>
 
-                <div v-if="item.type === 'integer' || item.type === 'number'">
+                <div v-else-if="item.type === 'integer' || item.type === 'number'">
                     <label :for="`id_custom_json_${item.name}`"
                            :class="{required: item.required}"
                     >[[ item.title ]]:</label>
@@ -49,7 +63,7 @@
                     >
                 </div>
 
-                <div v-if="item.type === 'boolean'">
+                <div v-else-if="item.type === 'boolean'">
                     <input type="checkbox"
                            :name="item.name"
                            :id="`id_custom_json_${item.name}`"
@@ -188,6 +202,7 @@
                                 description: field.description ?? "",
                                 default: defaultValue,
                                 required: schema.required.includes(fieldName),
+                                enum: field.enum ?? [],
                             });
                         }
                     }
